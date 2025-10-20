@@ -1,0 +1,20 @@
+{
+  "scripts": {
+    "test": "jest --coverage",
+    "test:watch": "jest --watch",
+    "test:integration": "jest --testMatch=\"**/test/integration/**/*.test.js\"",
+    "lint": "eslint src/ test/",
+    "lint:fix": "eslint src/ test/ --fix",
+    "validate": "node index.js validate --spec-dir examples/specs/",
+    "preprocess:example": "node index.js preprocess --spec-dir examples/specs/ --out-dir examples/specs_resolved/"
+  },
+  "jest": {
+    "testEnvironment": "node",
+    "collectCoverageFrom": [
+      "src/**/*.js",
+      "!src/**/*.test.js"
+    ],
+    "coverageDirectory": "coverage",
+    "coverageReporters": ["text", "lcov", "html"]
+  }
+}

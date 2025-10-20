@@ -1,0 +1,11 @@
+{
+  "testKey": "testValue",
+  "nested": {
+    "key": "nestedValue",
+    "deep": {
+      "key": "deepValue"
+    }
+  },
+  "number": 42,
+  "boolean": true
+}

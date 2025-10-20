@@ -1,0 +1,4 @@
+#!/usr/bin/env node
+
+// Make index.js executable
+require('./index.js');

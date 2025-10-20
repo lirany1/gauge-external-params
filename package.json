@@ -1,0 +1,59 @@
+{
+  "name": "gauge-external-params",
+  "version": "1.0.0",
+  "description": "A Gauge plugin for resolving placeholders from external sources like environment variables, files, APIs, Vault, AWS Secrets Manager, and Kubernetes",
+  "main": "index.js",
+  "bin": {
+    "gauge-external-params": "./index.js"
+  },
+  "scripts": {
+    "start": "node index.js --start",
+    "test": "jest",
+    "preprocess": "node index.js preprocess"
+  },
+  "keywords": [
+    "gauge",
+    "plugin",
+    "testing",
+    "parameters",
+    "secrets",
+    "external-config"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "@grpc/grpc-js": "^1.9.0",
+    "@grpc/proto-loader": "^0.7.8",
+    "axios": "^1.5.0",
+    "aws-sdk": "^2.1450.0",
+    "js-yaml": "^4.1.0",
+    "yargs": "^17.7.2",
+    "node-vault": "^0.10.2",
+    "@kubernetes/client-node": "^0.20.0",
+    "lodash.get": "^4.4.2"
+  },
+  "devDependencies": {
+    "jest": "^29.6.0",
+    "supertest": "^6.3.3"
+  },
+  "engines": {
+    "node": ">=14.0.0"
+  },
+  "gauge": {
+    "plugin": {
+      "id": "gauge-external-params",
+      "version": "1.0.0",
+      "name": "External Parameters",
+      "description": "Resolves placeholders from external sources",
+      "install": {
+        "windows": [],
+        "linux": [],
+        "darwin": []
+      },
+      "gaugeVersionSupport": {
+        "minimum": "1.0.0",
+        "maximum": ""
+      }
+    }
+  }
+}

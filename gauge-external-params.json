@@ -1,0 +1,112 @@
+{
+  "cacheTimeout": 60,
+  "sources": {
+    "env": {
+      "enabled": true,
+      "prefix": "",
+      "transformCase": "none"
+    },
+    "file": {
+      "enabled": true,
+      "basePath": ".",
+      "allowedExtensions": [".json", ".yaml", ".yml"],
+      "cacheFiles": true,
+      "maxFileSize": 1048576
+    },
+    "http": {
+      "enabled": true,
+      "timeout": 3000,
+      "retries": 2,
+      "baseURL": "",
+      "headers": {},
+      "auth": null,
+      "cacheResponses": true,
+      "cacheTimeout": 300000
+    },
+    "vault": {
+      "enabled": false,
+      "url": "http://localhost:8200",
+      "token": null,
+      "namespace": null,
+      "mount": "secret",
+      "version": "v2",
+      "timeout": 5000,
+      "retries": 2,
+      "cacheTimeout": 300000
+    },
+    "aws": {
+      "enabled": false,
+      "region": "us-east-1",
+      "accessKeyId": null,
+      "secretAccessKey": null,
+      "sessionToken": null,
+      "profile": null,
+      "roleArn": null,
+      "timeout": 5000,
+      "retries": 2,
+      "cacheTimeout": 300000
+    },
+    "k8s": {
+      "enabled": false,
+      "kubeconfig": null,
+      "namespace": "default",
+      "context": null,
+      "timeout": 5000,
+      "retries": 2,
+      "cacheTimeout": 120000
+    }
+  },
+  "logging": {
+    "level": "info",
+    "maskSecrets": true
+  },
+  "examples": {
+    "env": {
+      "description": "Environment variables",
+      "examples": [
+        "<token:env#API_TOKEN>",
+        "<db_pass:env#DATABASE_PASSWORD|defaultpass>"
+      ]
+    },
+    "file": {
+      "description": "JSON/YAML file values",
+      "examples": [
+        "<user:secrets.json#admin_user>",
+        "<config:app-config.yaml#database.host>",
+        "<data:data.json>"
+      ]
+    },
+    "http": {
+      "description": "HTTP API responses",
+      "examples": [
+        "<token:http#https://api.example.com/token>",
+        "<value:http#https://api.example.com/config#database.url>",
+        "<data:http#POST:https://api.example.com/auth:{\"user\":\"admin\"}#access_token>"
+      ]
+    },
+    "vault": {
+      "description": "HashiCorp Vault secrets",
+      "examples": [
+        "<secret:vault#secret/myapp:password>",
+        "<token:vault#secret/tokens:api_key>",
+        "<config:vault#secret/config>"
+      ]
+    },
+    "aws": {
+      "description": "AWS Secrets Manager",
+      "examples": [
+        "<secret:aws#prod/myapp/db:password>",
+        "<token:aws#prod/api-keys:github_token>",
+        "<config:aws#prod/config@AWSPENDING:database_url>"
+      ]
+    },
+    "k8s": {
+      "description": "Kubernetes ConfigMaps and Secrets",
+      "examples": [
+        "<secret:k8s#secret:my-secret:password>",
+        "<config:k8s#configmap:app-config:database.url>",
+        "<token:k8s#secret:prod-namespace/api-tokens:github>"
+      ]
+    }
+  }
+}

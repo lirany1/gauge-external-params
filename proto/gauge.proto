@@ -1,0 +1,210 @@
+syntax = "proto3";
+
+package gauge.messages;
+
+option java_package = "com.thoughtworks.gauge";
+option csharp_namespace = "Gauge.Messages";
+
+// Common Types
+message ProtoExecutionResult {
+    bool failed = 1;
+    int64 executionTime = 2;
+    string stackTrace = 3;
+    string errorMessage = 4;
+    bytes screenShot = 5;
+    string recoverable = 6;
+}
+
+message ProtoItem {
+    enum ProtoItemType {
+        Step = 0;
+        Comment = 1;
+        Concept = 2;
+        Scenario = 3;
+        TableHeader = 4;
+        TableRow = 5;
+        Table = 6;
+    }
+    ProtoItemType itemType = 1;
+    ProtoStep step = 2;
+    ProtoComment comment = 3;
+    ProtoConcept concept = 4;
+    ProtoScenario scenario = 5;
+    ProtoTableHeader tableHeader = 6;
+    ProtoTableRow tableRow = 7;
+    ProtoTable table = 8;
+}
+
+message ProtoStep {
+    string actualText = 1;
+    string parsedText = 2;
+    repeated Fragment fragments = 3;
+    ProtoExecutionResult stepExecutionResult = 4;
+    ProtoTable dataTable = 5;
+}
+
+message Fragment {
+    enum FragmentType {
+        Text = 0;
+        Parameter = 1;
+    }
+    FragmentType fragmentType = 1;
+    string text = 2;
+    Parameter parameter = 3;
+}
+
+message Parameter {
+    enum ParameterType {
+        Static = 0;
+        Dynamic = 1;
+        Special_String = 2;
+        Special_Table = 3;
+        Table = 4;
+    }
+    ParameterType parameterType = 1;
+    string value = 2;
+    string name = 3;
+    ProtoTable table = 4;
+}
+
+message ProtoComment {
+    string text = 1;
+}
+
+message ProtoConcept {
+    string conceptStep = 1;
+    repeated ProtoItem steps = 2;
+    ProtoExecutionResult conceptExecutionResult = 3;
+}
+
+message ProtoScenario {
+    string scenarioHeading = 1;
+    bool failed = 2;
+    repeated ProtoItem scenarioItems = 3;
+    repeated string tags = 4;
+    ProtoExecutionResult executionResult = 5;
+    bool skipped = 6;
+    string ID = 7;
+    repeated ProtoItem tearDownSteps = 8;
+    string span = 9;
+    int32 executionTime = 10;
+}
+
+message ProtoTable {
+    ProtoTableHeader headers = 1;
+    repeated ProtoTableRow rows = 2;
+}
+
+message ProtoTableHeader {
+    repeated string cells = 1;
+}
+
+message ProtoTableRow {
+    repeated string cells = 1;
+}
+
+message ProtoSpec {
+    string specHeading = 1;
+    bool isTableDriven = 2;
+    repeated ProtoItem items = 3;
+    repeated string tags = 4;
+    string fileName = 5;
+    ProtoTable dataTable = 6;
+    bool failed = 7;
+    repeated ProtoItem preTearDown = 8;
+    repeated ProtoItem postTearDown = 9;
+}
+
+// Hook request messages
+message ExecutionStartingRequest {
+    ProtoExecutionResult currentExecutionResult = 1;
+    ProtoSuiteResult suiteResult = 2;
+}
+
+message ExecutionEndingRequest {
+    ProtoExecutionResult currentExecutionResult = 1;
+    ProtoSuiteResult suiteResult = 2;
+}
+
+message SpecExecutionStartingRequest {
+    ProtoExecutionResult currentExecutionResult = 1;
+    ProtoSpec currentSpec = 2;
+}
+
+message SpecExecutionEndingRequest {
+    ProtoExecutionResult currentExecutionResult = 1;
+    ProtoSpec currentSpec = 2;
+}
+
+message ScenarioExecutionStartingRequest {
+    ProtoExecutionResult currentExecutionResult = 1;
+    ProtoScenario currentScenario = 2;
+    ProtoSpec currentSpec = 3;
+}
+
+message ScenarioExecutionEndingRequest {
+    ProtoExecutionResult currentExecutionResult = 1;
+    ProtoScenario currentScenario = 2;
+    ProtoSpec currentSpec = 3;
+}
+
+message StepExecutionStartingRequest {
+    ProtoExecutionResult currentExecutionResult = 1;
+    ProtoStep currentStep = 2;
+}
+
+message StepExecutionEndingRequest {
+    ProtoExecutionResult currentExecutionResult = 1;
+    ProtoStep currentStep = 2;
+}
+
+message ProtoSuiteResult {
+    repeated ProtoSpecResult specResults = 1;
+    bool failed = 2;
+    int32 specsFailedCount = 3;
+    int64 executionTime = 4;
+    bool successful = 5;
+    string environment = 6;
+    string tags = 7;
+    string projectName = 8;
+    int64 timestamp = 9;
+    int32 specsSkippedCount = 10;
+}
+
+message ProtoSpecResult {
+    ProtoSpec protoSpec = 1;
+    repeated ProtoScenarioResult scenarioResults = 2;
+    bool failed = 3;
+    int32 scenarioFailedCount = 4;
+    int32 scenarioCount = 5;
+    int64 executionTime = 6;
+    bool skipped = 7;
+    int32 scenarioSkippedCount = 8;
+    repeated string errors = 9;
+    string timestamp = 10;
+}
+
+message ProtoScenarioResult {
+    ProtoScenario scenario = 1;
+    bool failed = 2;
+    int64 executionTime = 3;
+    bool skipped = 4;
+}
+
+// Response message
+message ExecutionStatusResponse {
+    ProtoExecutionResult executionResult = 1;
+}
+
+// Service definitions
+service Reporter {
+    rpc NotifyExecutionStarting(ExecutionStartingRequest) returns (ExecutionStatusResponse);
+    rpc NotifyExecutionEnding(ExecutionEndingRequest) returns (ExecutionStatusResponse);
+    rpc NotifySpecExecutionStarting(SpecExecutionStartingRequest) returns (ExecutionStatusResponse);
+    rpc NotifySpecExecutionEnding(SpecExecutionEndingRequest) returns (ExecutionStatusResponse);
+    rpc NotifyScenarioExecutionStarting(ScenarioExecutionStartingRequest) returns (ExecutionStatusResponse);
+    rpc NotifyScenarioExecutionEnding(ScenarioExecutionEndingRequest) returns (ExecutionStatusResponse);
+    rpc NotifyStepExecutionStarting(StepExecutionStartingRequest) returns (ExecutionStatusResponse);
+    rpc NotifyStepExecutionEnding(StepExecutionEndingRequest) returns (ExecutionStatusResponse);
+    rpc NotifySuiteResult(ProtoSuiteResult) returns (ExecutionStatusResponse);
+}

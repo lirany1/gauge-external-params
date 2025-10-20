@@ -1,0 +1,24 @@
+{
+  "cacheTimeout": 10,
+  "sources": {
+    "env": {
+      "enabled": true
+    },
+    "file": {
+      "enabled": true,
+      "basePath": "./test/fixtures"
+    },
+    "http": {
+      "enabled": false
+    },
+    "vault": {
+      "enabled": false
+    },
+    "aws": {
+      "enabled": false
+    },
+    "k8s": {
+      "enabled": false
+    }
+  }
+}

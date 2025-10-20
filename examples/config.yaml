@@ -1,0 +1,17 @@
+database:
+  host: test-db.example.com
+  port: 5432
+  name: gauge_test
+  ssl: true
+
+email:
+  smtp:
+    host: smtp.example.com
+    port: 587
+    username: noreply@example.com
+    password: smtp_password_here
+  
+application:
+  name: Gauge External Params Test
+  version: 1.0.0
+  debug: true
