@@ -1,0 +1,149 @@
+name: Datadog Synthetic Tests
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+  schedule:
+    # Run synthetic tests every 6 hours
+    - cron: '0 */6 * * *'
+  workflow_dispatch:
+    inputs:
+      test_env:
+        description: 'Environment to test'
+        required: false
+        default: 'production'
+        type: choice
+        options:
+          - production
+          - staging
+          - development
+
+jobs:
+  synthetic-tests:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Use Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20.x'
+        cache: 'npm'
+    
+    - name: Install dependencies
+      run: npm ci
+    
+    - name: Start test server (if needed)
+      run: |
+        npm start &
+        sleep 5
+      continue-on-error: true
+    
+    - name: Run Datadog Synthetic Tests
+      uses: DataDog/synthetics-ci-github-action@v1.3.0
+      with:
+        api_key: ${{ secrets.DATADOG_API_KEY }}
+        app_key: ${{ secrets.DATADOG_APP_KEY }}
+        # Specify test IDs to run (comma-separated)
+        public_ids: ${{ secrets.DATADOG_PUBLIC_IDS }}
+        # Optional: specify subdomain if using custom Datadog site
+        subdomain: 'app'
+        # Optional: specify site (default is datadoghq.com)
+        # site: 'datadoghq.eu'
+        # Optional: fail CI if tests fail
+        fail_on_critical_errors: true
+        fail_on_missing_tests: true
+        fail_on_timeout: true
+        # Optional: polling timeout in milliseconds
+        polling_timeout: 120000
+        # Optional: override test variables
+        variables: |
+          {
+            "ENVIRONMENT": "${{ github.event.inputs.test_env || 'production' }}",
+            "BASE_URL": "${{ secrets.TEST_BASE_URL }}",
+            "API_TOKEN": "${{ secrets.TEST_API_TOKEN }}"
+          }
+    
+    - name: Upload Synthetic Test Results
+      if: always()
+      uses: actions/upload-artifact@v3
+      with:
+        name: datadog-synthetic-results
+        path: |
+          synthetics-results.json
+          synthetics-report.html
+        retention-days: 30
+    
+    - name: Comment PR with results
+      if: github.event_name == 'pull_request'
+      uses: actions/github-script@v7
+      with:
+        script: |
+          const fs = require('fs');
+          let comment = '## 🐕 Datadog Synthetic Test Results\n\n';
+          
+          try {
+            // Add test results if available
+            comment += '✅ Synthetic tests completed successfully!\n';
+            comment += `- Environment: ${{ github.event.inputs.test_env || 'production' }}\n`;
+            comment += `- Commit: ${context.sha.substring(0, 7)}\n`;
+          } catch (error) {
+            comment += '❌ Failed to parse test results\n';
+          }
+          
+          github.rest.issues.createComment({
+            issue_number: context.issue.number,
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            body: comment
+          });
+
+  # Optional: Run tests for specific scenarios
+  api-tests:
+    runs-on: ubuntu-latest
+    needs: synthetic-tests
+    if: github.event_name == 'push'
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Run API Synthetic Tests
+      uses: DataDog/synthetics-ci-github-action@v1.3.0
+      with:
+        api_key: ${{ secrets.DATADOG_API_KEY }}
+        app_key: ${{ secrets.DATADOG_APP_KEY }}
+        # Specify API test IDs
+        public_ids: ${{ secrets.DATADOG_API_TEST_IDS }}
+        config_path: datadog-ci.json
+    
+    - name: Notify on failure
+      if: failure()
+      uses: actions/github-script@v7
+      with:
+        script: |
+          console.log('API Synthetic tests failed!');
+          // Add notification logic here (Slack, email, etc.)
+
+  # Optional: Browser tests
+  browser-tests:
+    runs-on: ubuntu-latest
+    needs: synthetic-tests
+    if: github.event_name == 'push'
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Run Browser Synthetic Tests
+      uses: DataDog/synthetics-ci-github-action@v1.3.0
+      with:
+        api_key: ${{ secrets.DATADOG_API_KEY }}
+        app_key: ${{ secrets.DATADOG_APP_KEY }}
+        # Specify browser test IDs
+        public_ids: ${{ secrets.DATADOG_BROWSER_TEST_IDS }}
+        # Optional: override locations for browser tests
+        # locations: 'aws:us-east-1,aws:eu-central-1'
+        # Optional: device settings
+        # devices: 'laptop_large,tablet,mobile_small'

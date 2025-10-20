@@ -1,0 +1,50 @@
+{
+  "apiKey": "${DATADOG_API_KEY}",
+  "appKey": "${DATADOG_APP_KEY}",
+  "datadogSite": "datadoghq.com",
+  "failOnCriticalErrors": true,
+  "failOnMissingTests": true,
+  "failOnTimeout": true,
+  "files": [
+    "{,!(node_modules)/**/}*.synthetics.json"
+  ],
+  "global": {
+    "allowInsecureCertificates": false,
+    "basicAuth": {
+      "username": "",
+      "password": ""
+    },
+    "body": "",
+    "bodyType": "application/json",
+    "cookies": "",
+    "defaultStepTimeout": 60,
+    "deviceIds": [
+      "laptop_large"
+    ],
+    "followRedirects": true,
+    "headers": {},
+    "locations": [
+      "aws:us-east-1"
+    ],
+    "retry": {
+      "count": 2,
+      "interval": 1000
+    },
+    "executionRule": "blocking",
+    "startUrl": "",
+    "startUrlSubstitutionRegex": "",
+    "variables": {}
+  },
+  "pollingTimeout": 120000,
+  "proxy": {
+    "auth": {
+      "username": "",
+      "password": ""
+    },
+    "host": "",
+    "port": 3128,
+    "protocol": "http"
+  },
+  "subdomain": "app",
+  "tunnel": false
+}
