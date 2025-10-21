@@ -1,13 +1,20 @@
 name: Datadog Synthetic Tests
 
+# ⚠️ SETUP REQUIRED ⚠️
+# This workflow is disabled by default and will only run manually.
+# To enable automatic runs:
+# 1. Add required GitHub secrets (see .github/WORKFLOWS_SETUP.md)
+# 2. Uncomment the trigger events below
+#
+# on:
+#   push:
+#     branches: [ master ]
+#   pull_request:
+#     branches: [ master ]
+#   schedule:
+#     - cron: '0 */6 * * *'
+
 on:
-  push:
-    branches: [ master ]
-  pull_request:
-    branches: [ master ]
-  schedule:
-    # Run synthetic tests every 6 hours
-    - cron: '0 */6 * * *'
   workflow_dispatch:
     inputs:
       test_env:
